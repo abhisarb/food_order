@@ -6,6 +6,7 @@ import { LOGIN_MUTATION } from '@/graphql/operations';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import { Loader2, Mail, Lock, ChefHat } from 'lucide-react';
+import Link from 'next/link';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -105,8 +106,11 @@ export default function LoginPage() {
                         )}
                     </button>
 
-                    <div className="text-center text-xs text-slate-500 mt-4">
+                    <div className="text-center text-xs text-slate-500 mt-4 space-y-2">
                         <p>Try: admin@india.com / password123</p>
+                        <Link href="/signup" className="block text-sm text-orange-500 hover:text-orange-400 transition-colors">
+                            Don't have an account? quantities Sign up
+                        </Link>
                     </div>
                 </form>
             </motion.div>

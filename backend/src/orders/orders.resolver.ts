@@ -22,7 +22,7 @@ export class OrdersResolver {
     @Query(() => [Order])
     @UseGuards(GqlAuthGuard)
     async myOrders(@CurrentUser() user: any): Promise<any> {
-        return this.ordersService.findByUser(user.userId);
+        return this.ordersService.findByUser(user.userId, user.countryId);
     }
 
     @Mutation(() => Order)
@@ -31,7 +31,7 @@ export class OrdersResolver {
         @Args('orderId') orderId: string,
         @CurrentUser() user: any,
     ): Promise<any> {
-        return this.ordersService.checkout(orderId, user.userId, user.role);
+        return this.ordersService.checkout(orderId, user.userId, user.countryId, user.role);
     }
 
     @Mutation(() => Order)
@@ -40,6 +40,6 @@ export class OrdersResolver {
         @Args('orderId') orderId: string,
         @CurrentUser() user: any,
     ): Promise<any> {
-        return this.ordersService.cancel(orderId, user.userId, user.role);
+        return this.ordersService.cancel(orderId, user.userId, user.countryId, user.role);
     }
 }

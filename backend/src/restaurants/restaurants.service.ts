@@ -18,4 +18,8 @@ export class RestaurantsService {
             include: { country: true, menuItems: true },
         });
     }
+
+    async findAllCountries() {
+        return this.prisma.country.findMany();
+    }
 }

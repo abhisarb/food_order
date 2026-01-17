@@ -5,29 +5,59 @@ const prisma = new PrismaClient();
 
 async function main() {
     console.log('🌱 Seeding database...');
+    // Existing data preservation mode
 
-    // Clear existing data
-    await prisma.orderItem.deleteMany();
-    await prisma.order.deleteMany();
-    await prisma.menuItem.deleteMany();
-    await prisma.restaurant.deleteMany();
-    await prisma.paymentMethod.deleteMany();
-    await prisma.user.deleteMany();
-    await prisma.country.deleteMany();
-
-    console.log('🧹 Database cleared');
-
-    const india = await prisma.country.create({
-        data: {
+    const india = await prisma.country.upsert({
+        where: { code: 'IN' },
+        update: {},
+        create: {
             name: 'India',
             code: 'IN',
         },
     });
 
-    const america = await prisma.country.create({
-        data: {
-            name: 'America',
+    const usa = await prisma.country.upsert({
+        where: { code: 'US' },
+        update: {},
+        create: {
+            name: 'USA',
             code: 'US',
+        },
+    });
+
+    const japan = await prisma.country.upsert({
+        where: { code: 'JP' },
+        update: {},
+        create: {
+            name: 'Japan',
+            code: 'JP',
+        },
+    });
+
+    const uk = await prisma.country.upsert({
+        where: { code: 'UK' },
+        update: {},
+        create: {
+            name: 'United Kingdom',
+            code: 'UK',
+        },
+    });
+
+    const canada = await prisma.country.upsert({
+        where: { code: 'CA' },
+        update: {},
+        create: {
+            name: 'Canada',
+            code: 'CA',
+        },
+    });
+
+    const australia = await prisma.country.upsert({
+        where: { code: 'AU' },
+        update: {},
+        create: {
+            name: 'Australia',
+            code: 'AU',
         },
     });
 
@@ -35,8 +65,10 @@ async function main() {
 
     const hashedPassword = await bcrypt.hash('password123', 10);
 
-    const adminIndia = await prisma.user.create({
-        data: {
+    const adminIndia = await prisma.user.upsert({
+        where: { email: 'admin@india.com' },
+        update: {},
+        create: {
             email: 'admin@india.com',
             password: hashedPassword,
             name: 'Admin India',
@@ -45,8 +77,10 @@ async function main() {
         },
     });
 
-    const managerIndia = await prisma.user.create({
-        data: {
+    const managerIndia = await prisma.user.upsert({
+        where: { email: 'manager@india.com' },
+        update: {},
+        create: {
             email: 'manager@india.com',
             password: hashedPassword,
             name: 'Manager India',
@@ -55,8 +89,10 @@ async function main() {
         },
     });
 
-    const memberIndia = await prisma.user.create({
-        data: {
+    const memberIndia = await prisma.user.upsert({
+        where: { email: 'member@india.com' },
+        update: {},
+        create: {
             email: 'member@india.com',
             password: hashedPassword,
             name: 'Member India',
@@ -65,33 +101,39 @@ async function main() {
         },
     });
 
-    const adminUSA = await prisma.user.create({
-        data: {
+    const adminUSA = await prisma.user.upsert({
+        where: { email: 'admin@usa.com' },
+        update: {},
+        create: {
             email: 'admin@usa.com',
             password: hashedPassword,
             name: 'Admin USA',
             role: 'ADMIN',
-            countryId: america.id,
+            countryId: usa.id,
         },
     });
 
-    const managerUSA = await prisma.user.create({
-        data: {
+    const managerUSA = await prisma.user.upsert({
+        where: { email: 'manager@usa.com' },
+        update: {},
+        create: {
             email: 'manager@usa.com',
             password: hashedPassword,
             name: 'Manager USA',
             role: 'MANAGER',
-            countryId: america.id,
+            countryId: usa.id,
         },
     });
 
-    const memberUSA = await prisma.user.create({
-        data: {
+    const memberUSA = await prisma.user.upsert({
+        where: { email: 'member@usa.com' },
+        update: {},
+        create: {
             email: 'member@usa.com',
             password: hashedPassword,
             name: 'Member USA',
             role: 'MEMBER',
-            countryId: america.id,
+            countryId: usa.id,
         },
     });
 
@@ -124,28 +166,71 @@ async function main() {
             name: 'Burger Avenue',
             description: 'Gourmet burgers and classic American comfort food',
             imageUrl: 'https://images.unsplash.com/photo-1550547660-d9450f859349',
-            countryId: america.id,
+            countryId: usa.id,
         },
         {
             name: 'Pizza Paradise',
             description: 'Wood-fired pizzas with artisanal toppings',
             imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591',
-            countryId: america.id,
+            countryId: usa.id,
         },
         {
             name: 'Steakhouse Prime',
             description: 'Premium cuts and fine dining experience',
             imageUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947',
-            countryId: america.id,
+            countryId: usa.id,
         },
     ];
 
+    const japaneseRestaurants = [
+        {
+            name: 'Sushi Master',
+            description: 'Fresh sushi and sashimi',
+            imageUrl: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c',
+            countryId: japan.id,
+        }
+    ];
+
     for (const restaurant of indianRestaurants) {
-        await prisma.restaurant.create({ data: restaurant });
+        const existing = await prisma.restaurant.findFirst({
+            where: { name: restaurant.name },
+        });
+        if (existing) {
+            await prisma.restaurant.update({
+                where: { id: existing.id },
+                data: restaurant,
+            });
+        } else {
+            await prisma.restaurant.create({ data: restaurant });
+        }
     }
 
     for (const restaurant of americanRestaurants) {
-        await prisma.restaurant.create({ data: restaurant });
+        const existing = await prisma.restaurant.findFirst({
+            where: { name: restaurant.name },
+        });
+        if (existing) {
+            await prisma.restaurant.update({
+                where: { id: existing.id },
+                data: restaurant,
+            });
+        } else {
+            await prisma.restaurant.create({ data: restaurant });
+        }
+    }
+
+    for (const restaurant of japaneseRestaurants) {
+        const existing = await prisma.restaurant.findFirst({
+            where: { name: restaurant.name },
+        });
+        if (existing) {
+            await prisma.restaurant.update({
+                where: { id: existing.id },
+                data: restaurant,
+            });
+        } else {
+            await prisma.restaurant.create({ data: restaurant });
+        }
     }
 
     console.log('✅ Restaurants created');
@@ -174,7 +259,7 @@ async function main() {
             description: 'Cottage cheese in spinach gravy',
             price: 10.99,
             category: 'Main Course',
-            imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950',
+            imageUrl: 'https://images.unsplash.com/photo-1589647365602-9abd107b09be',
         },
         {
             restaurantId: spiceGarden.id,
@@ -182,7 +267,7 @@ async function main() {
             description: 'Soft flatbread with garlic and butter',
             price: 3.99,
             category: 'Breads',
-            imageUrl: 'https://images.unsplash.com/photo-1601050690117-90ac8c250689',
+            imageUrl: 'https://images.unsplash.com/photo-1626074353765-517a681e40be',
         },
         {
             restaurantId: spiceGarden.id,
@@ -190,7 +275,7 @@ async function main() {
             description: 'Crispy pastry with spiced potato filling',
             price: 4.99,
             category: 'Appetizers',
-            imageUrl: 'https://images.unsplash.com/photo-1601050690104-e5fb3e2c4aed',
+            imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950',
         },
         {
             restaurantId: tandoorHouse.id,
@@ -222,7 +307,7 @@ async function main() {
             description: 'Sweet yogurt drink with mango',
             price: 4.99,
             category: 'Beverages',
-            imageUrl: 'https://images.unsplash.com/photo-1589994965851-a8f479c573a9',
+            imageUrl: 'https://images.unsplash.com/photo-1595015065481-b541334c9c7f',
         },
         {
             restaurantId: biryaniParadise.id,
@@ -246,7 +331,7 @@ async function main() {
             description: 'Yogurt with cucumber and spices',
             price: 3.99,
             category: 'Sides',
-            imageUrl: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398',
+            imageUrl: 'https://images.unsplash.com/photo-1596797038530-2c107229654b',
         },
         {
             restaurantId: biryaniParadise.id,
@@ -254,7 +339,7 @@ async function main() {
             description: 'Sweet fried dumplings in syrup',
             price: 5.99,
             category: 'Desserts',
-            imageUrl: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc',
+            imageUrl: 'https://images.unsplash.com/photo-1593456382583-294747eb11de',
         },
         {
             restaurantId: burgerAvenue.id,
@@ -355,33 +440,58 @@ async function main() {
     ];
 
     for (const item of menuItems) {
-        await prisma.menuItem.create({ data: item });
+        const existingItem = await prisma.menuItem.findFirst({
+            where: {
+                restaurantId: item.restaurantId,
+                name: item.name,
+            },
+        });
+
+        if (existingItem) {
+            await prisma.menuItem.update({
+                where: { id: existingItem.id },
+                data: item,
+            });
+        } else {
+            await prisma.menuItem.create({ data: item });
+        }
     }
 
     console.log('✅ Menu items created');
 
-    await prisma.paymentMethod.createMany({
-        data: [
-            {
-                userId: adminIndia.id,
-                type: 'Credit Card',
-                lastFour: '4242',
-                isDefault: true,
-            },
-            {
-                userId: adminIndia.id,
-                type: 'Debit Card',
-                lastFour: '5555',
-                isDefault: false,
-            },
-            {
-                userId: adminUSA.id,
-                type: 'Credit Card',
-                lastFour: '1234',
-                isDefault: true,
-            },
-        ],
-    });
+    const paymentMethods = [
+        {
+            userId: adminIndia.id,
+            type: 'Credit Card',
+            lastFour: '4242',
+            isDefault: true,
+        },
+        {
+            userId: adminIndia.id,
+            type: 'Debit Card',
+            lastFour: '5555',
+            isDefault: false,
+        },
+        {
+            userId: adminUSA.id,
+            type: 'Credit Card',
+            lastFour: '1234',
+            isDefault: true,
+        },
+    ];
+
+    for (const pm of paymentMethods) {
+        const existingPm = await prisma.paymentMethod.findFirst({
+            where: {
+                userId: pm.userId,
+                lastFour: pm.lastFour,
+            }
+        });
+
+        if (!existingPm) {
+            await prisma.paymentMethod.create({ data: pm });
+        }
+    }
 
     console.log('✅ Payment methods created');
     console.log('🎉 Database seeded successfully!');

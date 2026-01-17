@@ -18,6 +18,32 @@ export const LOGIN_MUTATION = gql`
   }
 `;
 
+export const SIGNUP_MUTATION = gql`
+  mutation Signup($email: String!, $password: String!, $name: String!, $countryId: String!) {
+    signup(input: { email: $email, password: $password, name: $name, countryId: $countryId, role: "USER" }) {
+      access_token
+      user {
+        id
+        name
+        country {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
+export const GET_COUNTRIES = gql`
+  query GetCountries {
+    countries {
+      id
+      name
+      code
+    }
+  }
+`;
+
 export const GET_RESTAURANTS = gql`
   query GetRestaurants {
     restaurants {
